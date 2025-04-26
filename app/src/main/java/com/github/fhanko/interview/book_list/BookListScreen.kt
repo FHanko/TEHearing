@@ -41,7 +41,7 @@ fun BookListScreen(viewModel: BookListViewModel, navigation: NavController) {
 
     val listState = rememberLazyListState()
     Scaffold(
-        topBar = { TopAppBar(title = { Text(text = "BookApp") }) },
+        topBar = { TopAppBar(title = { Text(text = "Book List") }) },
         floatingActionButton = { AddBookButton() }
     ) { innerPadding ->
         LazyColumn(

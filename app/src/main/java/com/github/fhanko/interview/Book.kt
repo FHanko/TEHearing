@@ -8,10 +8,11 @@ import androidx.room.Query
 
 @Entity(tableName = "books")
 data class Book(
-    @PrimaryKey(autoGenerate = true) val id: Int,
-    val title: String,
-    val author: String,
-    val isbn: String?
+    @PrimaryKey(autoGenerate = true) val id: Int? = null,
+    val title: String = "",
+    val author: String = "",
+    val isbn: String? = null,
+    val notes: String? = null
 )
 
 @Dao

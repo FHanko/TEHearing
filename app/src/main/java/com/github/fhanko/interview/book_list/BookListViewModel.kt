@@ -20,7 +20,6 @@ data class BookListState(
 )
 
 class BookListViewModel : ViewModel() {
-
     var state by mutableStateOf(BookListState())
 
     fun call(intent: BookListIntent) {
