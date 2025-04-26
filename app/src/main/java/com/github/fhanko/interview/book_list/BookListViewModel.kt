@@ -1,12 +1,10 @@
-package com.github.fhanko.interview.BookList
+package com.github.fhanko.interview.book_list
 
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.Room
 import com.github.fhanko.interview.AppDatabase
 import com.github.fhanko.interview.Book
 import kotlinx.coroutines.Dispatchers
@@ -21,15 +19,11 @@ data class BookListState(
     val books: List<Book> = emptyList()
 )
 
-class BookListViewModel(context: Context) : ViewModel() {
-    private val db: AppDatabase = Room.databaseBuilder(
-        context,
-        AppDatabase::class.java, "app_data"
-    ).build()
+class BookListViewModel : ViewModel() {
 
     var state by mutableStateOf(BookListState())
 
-    fun onAction(intent: BookListIntent) {
+    fun call(intent: BookListIntent) {
         viewModelScope.launch {
             when (intent) {
                 BookListIntent.LoadBooks -> loadBooks()
@@ -39,12 +33,8 @@ class BookListViewModel(context: Context) : ViewModel() {
 
     private suspend fun loadBooks() {
         val books = withContext (Dispatchers.IO) {
-            db.bookDao().getAll()
+            AppDatabase.instance.bookDao().getAll()
         }
         state = state.copy(books = books)
-    }
-
-    private suspend fun insert(book: Book) {
-        withContext (Dispatchers.IO) { db.bookDao().insert(book) }
     }
 }

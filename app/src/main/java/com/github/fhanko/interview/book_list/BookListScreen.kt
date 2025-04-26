@@ -1,9 +1,5 @@
-package com.github.fhanko.interview.BookList
+package com.github.fhanko.interview.book_list
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,26 +28,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.github.fhanko.interview.Book
-import com.github.fhanko.interview.ui.theme.InterviewTheme
 import kotlin.math.sqrt
 
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            InterviewTheme {
-                BookListScreen(BookListViewModel(applicationContext))
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookListScreen(viewModel: BookListViewModel) {
-    viewModel.onAction(BookListIntent.LoadBooks)
+fun BookListScreen(viewModel: BookListViewModel, navigation: NavController) {
+    viewModel.call(BookListIntent.LoadBooks)
     val books = viewModel.state.books
 
     val listState = rememberLazyListState()
