@@ -20,7 +20,8 @@ sealed class BookListIntent {
 }
 
 data class BookListState(
-    val books: List<Book> = emptyList()
+    val books: List<Book> = emptyList(),
+    val isLoading: Boolean = true
 )
 
 class BookListViewModel : ViewModel() {
@@ -39,7 +40,7 @@ class BookListViewModel : ViewModel() {
         val books = withContext (Dispatchers.IO) {
             AppDatabase.instance.bookDao().getAll()
         }
-        state = state.copy(books = books)
+        state = state.copy(books = books, isLoading = false)
     }
 
     private suspend fun toggleReadState(bookId: Int) {

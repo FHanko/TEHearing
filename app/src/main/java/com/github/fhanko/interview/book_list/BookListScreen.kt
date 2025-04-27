@@ -1,13 +1,12 @@
 package com.github.fhanko.interview.book_list
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -49,21 +49,27 @@ fun BookListScreen(viewModel: BookListViewModel, navigation: NavController) {
         topBar = { TopAppBar(title = { Text(text = "Book List") }) },
         floatingActionButton = { AddBookButton() { navigation.navigate("add") } }
     ) { innerPadding ->
-        if (books.isEmpty())
-            Text(text = "You have no books, please add a book.",
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().padding(innerPadding))
-        else
-            LazyColumn(
-                state = listState,
-                modifier = Modifier.padding(innerPadding)
-            ) {
-                items(books.size) { index ->
-                    BookCard(book = books[index]) {
-                        viewModel.call(BookListIntent.ToggleReadState(books[index].id))
+        when {
+            viewModel.state.isLoading ->
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            books.isEmpty() ->
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(text = "You have no books, please add a book.")
+                }
+            else ->
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.padding(innerPadding)
+                ) {
+                    items(books.size) { index ->
+                        BookCard(book = books[index]) {
+                            viewModel.call(BookListIntent.ToggleReadState(books[index].id))
+                        }
                     }
                 }
-            }
+        }
     }
 }
 
