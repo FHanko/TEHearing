@@ -1,5 +1,6 @@
 package com.github.fhanko.interview.book_list
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -64,8 +65,10 @@ fun BookListScreen(viewModel: BookListViewModel, navigation: NavController) {
                     modifier = Modifier.padding(innerPadding)
                 ) {
                     items(books.size) { index ->
-                        BookCard(book = books[index]) {
-                            viewModel.call(BookListIntent.ToggleReadState(books[index].id))
+                        BookCard(book = books[index], onBookDetails = {
+                            navigation.navigate("details/$it")
+                        }) {
+                            viewModel.call(BookListIntent.ToggleReadState(books[index].id!!))
                         }
                     }
                 }
@@ -86,8 +89,8 @@ fun AddBookButton(onAddBookClick: () -> Unit) {
 }
 
 @Composable
-fun BookCard(book: Book, onToggleReadState: () -> Unit) {
-    Card(modifier = Modifier.padding(4.dp)) {
+fun BookCard(book: Book, onBookDetails: (Int) -> Unit, onToggleReadState: () -> Unit) {
+    Card(modifier = Modifier.padding(4.dp).clickable { onBookDetails(book.id!!) }) {
         val coverSize = 100.dp
         Row(
             Modifier

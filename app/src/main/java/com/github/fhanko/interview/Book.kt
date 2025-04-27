@@ -12,7 +12,7 @@ enum class ReadState { Unread, Partial, Read }
 
 @Entity(tableName = "books")
 data class Book(
-    @PrimaryKey(autoGenerate = true) val id: Int,
+    @PrimaryKey(autoGenerate = true) val id: Int?,
     val title: String,
     val author: String,
     val isbn: String?,
@@ -20,13 +20,16 @@ data class Book(
     val readState: ReadState
 ){
     @Ignore
-    constructor(): this(0, "", "", null, null, ReadState.Unread)
+    constructor(): this(null, "", "", null, null, ReadState.Unread)
 }
 
 @Dao
 interface BookDao {
     @Query("SELECT * FROM books")
     fun getAll(): List<Book>
+
+    @Query("SELECT * FROM books WHERE id == :id")
+    fun getById(id: Int): Book
 
     @Insert
     fun insert(book: Book)

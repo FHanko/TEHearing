@@ -1,4 +1,4 @@
-package com.github.fhanko.interview.book_add
+package com.github.fhanko.interview.book_edit
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,28 +13,28 @@ import kotlinx.coroutines.withContext
 
 enum class InputField { Title, Author, Notes, ISBN }
 
-sealed class BookAddIntent {
-    data object InsertBook : BookAddIntent()
-    data class InputChanged(val field: InputField, val value: String) : BookAddIntent()
+sealed class BookEditIntent {
+    data class InputChanged(val field: InputField, val value: String) : BookEditIntent()
 }
 
-data class BookAddState(
-    val book: Book = Book()
+data class BookEditState(
+    val book: Book = Book(),
+    val isLoading: Boolean = true
 )
 
-class BookAddViewModel : ViewModel() {
-    var state by mutableStateOf(BookAddState())
+open class BookEditViewModel : ViewModel() {
+    var state by mutableStateOf(BookEditState())
+        protected set
 
-    fun call(intent: BookAddIntent) {
+    fun call(intent: BookEditIntent) {
         viewModelScope.launch {
             when (intent) {
-                BookAddIntent.InsertBook -> insertBook()
-                is BookAddIntent.InputChanged -> inputChanged(intent.field, intent.value)
+                is BookEditIntent.InputChanged -> inputChanged(intent.field, intent.value)
             }
         }
     }
 
-    private fun inputChanged(field: InputField, value: String) {
+    private suspend fun inputChanged(field: InputField, value: String) {
         state = state.copy(book =
             when (field) {
                 InputField.Title -> state.book.copy(title = value)
@@ -43,11 +43,12 @@ class BookAddViewModel : ViewModel() {
                 InputField.ISBN -> state.book.copy(isbn = value)
             }
         )
+        if (state.book.id != null) updateBook()
     }
 
-    private suspend fun insertBook() {
+    private suspend fun updateBook() {
         withContext (Dispatchers.IO) {
-            AppDatabase.instance.bookDao().insert(state.book)
+            AppDatabase.instance.bookDao().update(state.book)
         }
     }
 }

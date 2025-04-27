@@ -1,0 +1,35 @@
+package com.github.fhanko.interview.book_edit.details
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
+import com.github.fhanko.interview.book_edit.BookEditColumn
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BookDetailsScreen(viewModel: BookDetailsViewModel, navigation: NavController) {
+    viewModel.call(BookDetailsIntent.BookInit)
+
+    val book = viewModel.state.book
+    Scaffold(
+        topBar = { TopAppBar(title = { Text(text = "Book Details") }) }
+    ) { innerPadding ->
+        when {
+            viewModel.state.isLoading ->
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            else ->
+                BookEditColumn(book, viewModel, Modifier.padding(innerPadding)) { }
+        }
+    }
+}

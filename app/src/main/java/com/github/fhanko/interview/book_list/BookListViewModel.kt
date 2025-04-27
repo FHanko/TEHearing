@@ -45,17 +45,13 @@ class BookListViewModel : ViewModel() {
 
     private suspend fun toggleReadState(bookId: Int) {
         state = state.copy(books = state.books.map {
-            if (it.id == bookId) {
-                Logger.getAnonymousLogger().log(Level.INFO, "found")
+            if (it.id == bookId)
                 it.copy(readState = ReadState.entries[(it.readState.ordinal + 1) % ReadState.entries.size])
-            } else
+            else
                 it
         })
         withContext (Dispatchers.IO) {
-            state.books.find { it.id == bookId }?.let {
-                Logger.getAnonymousLogger().log(Level.INFO, "" + it.readState)
-                AppDatabase.instance.bookDao().update(it)
-            }
+            state.books.find { it.id == bookId }?.let { AppDatabase.instance.bookDao().update(it) }
         }
     }
 }
