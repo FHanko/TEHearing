@@ -9,6 +9,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -19,17 +21,17 @@ import com.github.fhanko.interview.book_edit.BookEditColumn
 fun BookDetailsScreen(viewModel: BookDetailsViewModel, navigation: NavController) {
     viewModel.call(BookDetailsIntent.BookInit)
 
-    val book = viewModel.state.book
+    val state by viewModel.state.collectAsState()
     Scaffold(
         topBar = { TopAppBar(title = { Text(text = "Book Details") }) }
     ) { innerPadding ->
         when {
-            viewModel.state.isLoading ->
+            state.isLoading ->
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
             else ->
-                BookEditColumn(book, viewModel, Modifier.padding(innerPadding)) { }
+                BookEditColumn(state.book, viewModel, Modifier.padding(innerPadding)) { }
         }
     }
 }

@@ -27,6 +27,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,7 +45,7 @@ import kotlin.math.sqrt
 @Composable
 fun BookListScreen(viewModel: BookListViewModel, navigation: NavController) {
     viewModel.call(BookListIntent.LoadBooks)
-    val books = viewModel.state.books
+    val state by viewModel.state.collectAsState()
 
     val listState = rememberLazyListState()
     Scaffold(
@@ -51,11 +53,11 @@ fun BookListScreen(viewModel: BookListViewModel, navigation: NavController) {
         floatingActionButton = { AddBookButton() { navigation.navigate("add") } }
     ) { innerPadding ->
         when {
-            viewModel.state.isLoading ->
+            state.isLoading ->
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
-            books.isEmpty() ->
+            state.books.isEmpty() ->
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(text = "You have no books, please add a book.")
                 }
@@ -64,11 +66,11 @@ fun BookListScreen(viewModel: BookListViewModel, navigation: NavController) {
                     state = listState,
                     modifier = Modifier.padding(innerPadding)
                 ) {
-                    items(books.size) { index ->
-                        BookCard(book = books[index], onBookDetails = {
+                    items(state.books.size) { index ->
+                        BookCard(book = state.books[index], onBookDetails = {
                             navigation.navigate("details/$it")
                         }) {
-                            viewModel.call(BookListIntent.ToggleReadState(books[index].id!!))
+                            viewModel.call(BookListIntent.ToggleReadState(state.books[index].id!!))
                         }
                     }
                 }
@@ -90,7 +92,9 @@ fun AddBookButton(onAddBookClick: () -> Unit) {
 
 @Composable
 fun BookCard(book: Book, onBookDetails: (Int) -> Unit, onToggleReadState: () -> Unit) {
-    Card(modifier = Modifier.padding(4.dp).clickable { onBookDetails(book.id!!) }) {
+    Card(modifier = Modifier
+        .padding(4.dp)
+        .clickable { onBookDetails(book.id!!) }) {
         val coverSize = 100.dp
         Row(
             Modifier

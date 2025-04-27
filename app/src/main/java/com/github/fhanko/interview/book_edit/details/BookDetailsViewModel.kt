@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.github.fhanko.interview.AppDatabase
 import com.github.fhanko.interview.book_edit.BookEditViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -21,10 +22,10 @@ class BookDetailsViewModel(private val bookId: Int): BookEditViewModel() {
     }
 
     private suspend fun initBook() {
-        state = state.copy(book =
-            withContext (Dispatchers.IO) {
+        _state.update {
+            it.copy(book = withContext (Dispatchers.IO) {
                 AppDatabase.instance.bookDao().getById(bookId)
-            }, isLoading = false
-        )
+            }, isLoading = false)
+        }
     }
 }

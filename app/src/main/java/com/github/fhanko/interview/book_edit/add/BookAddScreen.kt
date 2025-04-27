@@ -12,6 +12,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,17 +26,18 @@ import com.github.fhanko.interview.book_edit.BookEditColumn
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookAddScreen(viewModel: BookAddViewModel, navigation: NavController) {
-    val book = viewModel.state.book
+    val state by viewModel.state.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
     ConfirmDialog(show = showDialog) {
         viewModel.call(BookAddIntent.InsertBook)
-        navigation.navigate("home")
+        navigation.popBackStack()
     }
     Scaffold(
         topBar = { TopAppBar(title = { Text(text = "Add Book") }) }
     ) { innerPadding ->
-        BookEditColumn(book, viewModel, Modifier.padding(innerPadding)) {
-            SaveBookButton(book.title != "" && book.author != "") { showDialog = true }
+        BookEditColumn(state.book, viewModel, Modifier.padding(innerPadding)) {
+            SaveBookButton(state.book.title != "" && state.book.author != "")
+                { showDialog = true }
         }
     }
 }

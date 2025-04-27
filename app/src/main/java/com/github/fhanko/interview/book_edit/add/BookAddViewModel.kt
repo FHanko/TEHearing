@@ -23,7 +23,7 @@ class BookAddViewModel: BookEditViewModel() {
 
     private suspend fun insertBook() {
         withContext (Dispatchers.IO) {
-            AppDatabase.instance.bookDao().insert(state.book)
+            AppDatabase.instance.bookDao().insert(state.value.book)
         }
     }
 }
