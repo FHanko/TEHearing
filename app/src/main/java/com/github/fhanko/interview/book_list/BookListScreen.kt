@@ -42,7 +42,7 @@ fun BookListScreen(viewModel: BookListViewModel, navigation: NavController) {
     val listState = rememberLazyListState()
     Scaffold(
         topBar = { TopAppBar(title = { Text(text = "Book List") }) },
-        floatingActionButton = { AddBookButton() }
+        floatingActionButton = { AddBookButton() { navigation.navigate("add") } }
     ) { innerPadding ->
         LazyColumn(
             state = listState,
@@ -56,10 +56,9 @@ fun BookListScreen(viewModel: BookListViewModel, navigation: NavController) {
 }
 
 @Composable
-@Preview
-fun AddBookButton() {
+fun AddBookButton(onAddBookClick: () -> Unit) {
     ExtendedFloatingActionButton(onClick = {
-
+        onAddBookClick()
     }) {
         Row {
             Icon(Icons.Default.Add, "")
@@ -71,7 +70,7 @@ fun AddBookButton() {
 @Composable
 fun BookCard(book: Book) {
     Card(modifier = Modifier.padding(4.dp)) {
-        val coverSize = 110.dp
+        val coverSize = 90.dp
         Row(
             Modifier
                 .height(coverSize)

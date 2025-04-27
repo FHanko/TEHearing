@@ -14,7 +14,7 @@ import kotlinx.coroutines.withContext
 enum class InputField { Title, Author, Notes, ISBN }
 
 sealed class BookAddIntent {
-    data class InsertBook(val book: Book) : BookAddIntent()
+    data object InsertBook : BookAddIntent()
     data class InputChanged(val field: InputField, val value: String) : BookAddIntent()
 }
 
@@ -28,7 +28,7 @@ class BookAddViewModel : ViewModel() {
     fun call(intent: BookAddIntent) {
         viewModelScope.launch {
             when (intent) {
-                is BookAddIntent.InsertBook -> insertBook(intent.book)
+                is BookAddIntent.InsertBook -> insertBook()
                 is BookAddIntent.InputChanged -> inputChanged(intent.field, intent.value)
             }
         }
@@ -45,9 +45,9 @@ class BookAddViewModel : ViewModel() {
         )
     }
 
-    private suspend fun insertBook(book: Book) {
+    private suspend fun insertBook() {
         withContext (Dispatchers.IO) {
-            AppDatabase.instance.bookDao().insert(book)
+            AppDatabase.instance.bookDao().insert(state.book)
         }
     }
 }

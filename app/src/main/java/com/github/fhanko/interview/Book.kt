@@ -2,18 +2,22 @@ package com.github.fhanko.interview
 
 import androidx.room.Dao
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
 
 @Entity(tableName = "books")
 data class Book(
-    @PrimaryKey(autoGenerate = true) val id: Int? = null,
-    val title: String = "",
-    val author: String = "",
-    val isbn: String? = null,
-    val notes: String? = null
-)
+    @PrimaryKey(autoGenerate = true) val id: Int,
+    val title: String,
+    val author: String,
+    val isbn: String?,
+    val notes: String?
+){
+    @Ignore
+    constructor(): this(0, "", "", null, null)
+}
 
 @Dao
 interface BookDao {
