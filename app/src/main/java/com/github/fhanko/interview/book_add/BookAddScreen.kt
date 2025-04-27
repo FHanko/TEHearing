@@ -1,5 +1,6 @@
 package com.github.fhanko.interview.book_add
 
+import android.app.AlertDialog
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -18,16 +20,27 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookAddScreen(viewModel: BookAddViewModel, navigation: NavController) {
     val book = viewModel.state.book
+    var showDialog by remember { mutableStateOf(false) }
+    ConfirmDialog(show = showDialog) {
+        viewModel.call(BookAddIntent.InsertBook)
+        navigation.navigate("home")
+    }
+    
     Scaffold(
         topBar = { TopAppBar(title = { Text(text = "Add Book") }) }
     ) { innerPadding ->
@@ -52,8 +65,7 @@ fun BookAddScreen(viewModel: BookAddViewModel, navigation: NavController) {
                     .height(48.dp), shape = RectangleShape,
                     enabled = book.title != "" && book.author != "",
                     onClick = {
-                        viewModel.call(BookAddIntent.InsertBook)
-                        navigation.navigate("home")
+                        showDialog = true
                     }) {
                     Text(text = "Add Book", style = MaterialTheme.typography.bodyLarge)
                 }
@@ -75,4 +87,17 @@ fun BookInput(value: String?, placeholder: String, onChange: (String) -> Unit) {
             })
     }
     Spacer(modifier = Modifier.height(8.dp))
+}
+
+@Composable
+fun ConfirmDialog(show: Boolean, confirmAction: () -> Unit) {
+    if (show) {
+        AlertDialog(
+            title = { Text("Book successfully added") },
+            onDismissRequest = { }, confirmButton = {
+                Button(onClick = { confirmAction() }) {
+                    Text(text = "Done")
+                }
+        })
+    }
 }
