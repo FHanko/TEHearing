@@ -2,6 +2,7 @@ package com.github.fhanko.interview.book_edit.details
 
 import androidx.lifecycle.viewModelScope
 import com.github.fhanko.interview.AppDatabase
+import com.github.fhanko.interview.Book
 import com.github.fhanko.interview.ReadState
 import com.github.fhanko.interview.book_edit.BookEditViewModel
 import kotlinx.coroutines.Dispatchers
@@ -11,6 +12,7 @@ import kotlinx.coroutines.withContext
 
 sealed class BookDetailsIntent {
     data object BookInit: BookDetailsIntent()
+    data object RemoveBook: BookDetailsIntent()
     data object ToggleReadState: BookDetailsIntent()
 }
 
@@ -20,6 +22,7 @@ class BookDetailsViewModel(private val bookId: Int): BookEditViewModel() {
             when (intent) {
                 BookDetailsIntent.BookInit -> initBook()
                 BookDetailsIntent.ToggleReadState -> toggleReadState()
+                BookDetailsIntent.RemoveBook -> removeBook()
             }
         }
     }
@@ -27,7 +30,7 @@ class BookDetailsViewModel(private val bookId: Int): BookEditViewModel() {
     private suspend fun initBook() {
         _state.update {
             it.copy(book = withContext (Dispatchers.IO) {
-                AppDatabase.instance.bookDao().getById(bookId)
+                AppDatabase.instance.bookDao().getById(bookId) ?: Book()
             }, isLoading = false)
         }
     }
@@ -39,5 +42,11 @@ class BookDetailsViewModel(private val bookId: Int): BookEditViewModel() {
             ))
         }
         updateBook()
+    }
+
+    private suspend fun removeBook() {
+        withContext (Dispatchers.IO) {
+            AppDatabase.instance.bookDao().delete(_state.value.book)
+        }
     }
 }

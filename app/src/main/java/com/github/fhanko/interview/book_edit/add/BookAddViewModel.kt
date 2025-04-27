@@ -2,6 +2,8 @@ package com.github.fhanko.interview.book_edit.add
 
 import androidx.lifecycle.viewModelScope
 import com.github.fhanko.interview.AppDatabase
+import com.github.fhanko.interview.Book
+import com.github.fhanko.interview.ReadState
 import com.github.fhanko.interview.book_edit.BookEditViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,6 +22,8 @@ class BookAddViewModel: BookEditViewModel() {
             }
         }
     }
+
+
 
     private suspend fun insertBook() {
         withContext (Dispatchers.IO) {
