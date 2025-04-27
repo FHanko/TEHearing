@@ -7,12 +7,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.fhanko.interview.AppDatabase
 import com.github.fhanko.interview.Book
+import com.github.fhanko.interview.ReadState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.logging.Level
+import java.util.logging.Logger
 
 sealed class BookListIntent {
     data object LoadBooks : BookListIntent()
+    data class ToggleReadState(val bookId: Int) : BookListIntent()
 }
 
 data class BookListState(
@@ -26,6 +30,7 @@ class BookListViewModel : ViewModel() {
         viewModelScope.launch {
             when (intent) {
                 BookListIntent.LoadBooks -> loadBooks()
+                is BookListIntent.ToggleReadState -> toggleReadState(intent.bookId)
             }
         }
     }
@@ -35,5 +40,21 @@ class BookListViewModel : ViewModel() {
             AppDatabase.instance.bookDao().getAll()
         }
         state = state.copy(books = books)
+    }
+
+    private suspend fun toggleReadState(bookId: Int) {
+        state = state.copy(books = state.books.map {
+            if (it.id == bookId) {
+                Logger.getAnonymousLogger().log(Level.INFO, "found")
+                it.copy(readState = ReadState.entries[(it.readState.ordinal + 1) % ReadState.entries.size])
+            } else
+                it
+        })
+        withContext (Dispatchers.IO) {
+            state.books.find { it.id == bookId }?.let {
+                Logger.getAnonymousLogger().log(Level.INFO, "" + it.readState)
+                AppDatabase.instance.bookDao().update(it)
+            }
+        }
     }
 }

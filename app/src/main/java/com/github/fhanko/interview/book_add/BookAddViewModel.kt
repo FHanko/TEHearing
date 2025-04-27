@@ -28,7 +28,7 @@ class BookAddViewModel : ViewModel() {
     fun call(intent: BookAddIntent) {
         viewModelScope.launch {
             when (intent) {
-                is BookAddIntent.InsertBook -> insertBook()
+                BookAddIntent.InsertBook -> insertBook()
                 is BookAddIntent.InputChanged -> inputChanged(intent.field, intent.value)
             }
         }

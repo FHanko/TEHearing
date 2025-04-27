@@ -6,6 +6,9 @@ import androidx.room.Ignore
 import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import androidx.room.Update
+
+enum class ReadState { Unread, Partial, Read }
 
 @Entity(tableName = "books")
 data class Book(
@@ -13,10 +16,11 @@ data class Book(
     val title: String,
     val author: String,
     val isbn: String?,
-    val notes: String?
+    val notes: String?,
+    val readState: ReadState
 ){
     @Ignore
-    constructor(): this(0, "", "", null, null)
+    constructor(): this(0, "", "", null, null, ReadState.Unread)
 }
 
 @Dao
@@ -26,4 +30,7 @@ interface BookDao {
 
     @Insert
     fun insert(book: Book)
+
+    @Update
+    fun update(book: Book)
 }

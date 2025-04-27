@@ -2,6 +2,7 @@ package com.github.fhanko.interview.book_add
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,28 +27,30 @@ import androidx.navigation.NavController
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookAddScreen(viewModel: BookAddViewModel, navigation: NavController) {
+    val book = viewModel.state.book
     Scaffold(
         topBar = { TopAppBar(title = { Text(text = "Add Book") }) }
     ) { innerPadding ->
         Column(modifier = Modifier
             .padding(innerPadding)
             .verticalScroll(rememberScrollState())) {
-            BookInput(value = viewModel.state.book.title, placeholder = "Title*") {
+            BookInput(value = book.title, placeholder = "Title*") {
                 viewModel.call(BookAddIntent.InputChanged(InputField.Title, it))
             }
-            BookInput(value = viewModel.state.book.author, placeholder = "Author*") {
+            BookInput(value = book.author, placeholder = "Author*") {
                 viewModel.call(BookAddIntent.InputChanged(InputField.Author, it))
             }
-            BookInput(value = viewModel.state.book.isbn, placeholder = "ISBN") {
+            BookInput(value = book.isbn, placeholder = "ISBN") {
                 viewModel.call(BookAddIntent.InputChanged(InputField.ISBN, it))
             }
-            BookInput(value = viewModel.state.book.notes, placeholder = "Notes") {
+            BookInput(value = book.notes, placeholder = "Notes") {
                 viewModel.call(BookAddIntent.InputChanged(InputField.Notes, it))
             }
             Row {
                 Button(modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp), shape = RectangleShape,
+                    enabled = book.title != "" && book.author != "",
                     onClick = {
                         viewModel.call(BookAddIntent.InsertBook)
                         navigation.navigate("home")
@@ -71,4 +74,5 @@ fun BookInput(value: String?, placeholder: String, onChange: (String) -> Unit) {
                 onChange(it)
             })
     }
+    Spacer(modifier = Modifier.height(8.dp))
 }

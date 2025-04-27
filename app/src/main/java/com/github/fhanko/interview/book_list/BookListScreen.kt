@@ -1,10 +1,13 @@
 package com.github.fhanko.interview.book_list
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,12 +29,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.github.fhanko.interview.Book
+import com.github.fhanko.interview.R
+import com.github.fhanko.interview.ReadState
 import kotlin.math.sqrt
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,14 +49,21 @@ fun BookListScreen(viewModel: BookListViewModel, navigation: NavController) {
         topBar = { TopAppBar(title = { Text(text = "Book List") }) },
         floatingActionButton = { AddBookButton() { navigation.navigate("add") } }
     ) { innerPadding ->
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            items(books.size) { bookId ->
-                BookCard(book = books[bookId])
+        if (books.isEmpty())
+            Text(text = "You have no books, please add a book.",
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().padding(innerPadding))
+        else
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.padding(innerPadding)
+            ) {
+                items(books.size) { index ->
+                    BookCard(book = books[index]) {
+                        viewModel.call(BookListIntent.ToggleReadState(books[index].id))
+                    }
+                }
             }
-        }
     }
 }
 
@@ -68,9 +80,9 @@ fun AddBookButton(onAddBookClick: () -> Unit) {
 }
 
 @Composable
-fun BookCard(book: Book) {
+fun BookCard(book: Book, onToggleReadState: () -> Unit) {
     Card(modifier = Modifier.padding(4.dp)) {
-        val coverSize = 90.dp
+        val coverSize = 100.dp
         Row(
             Modifier
                 .height(coverSize)
@@ -82,17 +94,52 @@ fun BookCard(book: Book) {
                         .background(Color.Gray)
                 )
             }
-            Column(modifier = Modifier.padding(start = 6.dp)) {
+            Column(modifier = Modifier
+                .padding(6.dp)
+                .weight(0.8f)) {
                 Text(text = book.title, style = MaterialTheme.typography.titleLarge)
-                Text(text = book.author, style = MaterialTheme.typography.bodyMedium)
+                Row {
+                    Text(text = book.author, style = MaterialTheme.typography.bodyMedium)
+                }
                 Spacer(modifier = Modifier.weight(1f))
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text(
                         text = book.isbn ?: "",
-                        style = MaterialTheme.typography.labelSmall.merge(color = Color.Gray)
+                        style = MaterialTheme.typography.labelSmall.merge(color = Color.Gray),
+                        modifier = Modifier.align(Alignment.Bottom)
                     )
                 }
             }
+            Column(modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .weight(0.3f)) {
+                ToggleReadButton(readState = book.readState) { onToggleReadState() }
+            }
         }
+    }
+}
+
+data class ReadIcon(val icon: Int, val text: String)
+val readMap = mapOf(
+    ReadState.Unread to ReadIcon(R.drawable.book, "Not read"),
+    ReadState.Partial to ReadIcon(R.drawable.book_half, "Reading"),
+    ReadState.Read to ReadIcon(R.drawable.book_fill, "Read")
+)
+@Composable
+fun ToggleReadButton(readState: ReadState, onToggle: () -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(
+            painter = painterResource(id = readMap[readState]?.icon ?: R.drawable.book),
+            "Read status: ${readMap[readState]?.text}",
+            modifier = Modifier
+                .size(90.dp, 44.dp)
+                .align(Alignment.CenterHorizontally)
+                .clickable { onToggle() }
+        )
+        Text(
+            text = readMap[readState]?.text ?: "",
+            style = MaterialTheme.typography.labelSmall.merge(color = Color.Gray),
+            textAlign = TextAlign.Center
+        )
     }
 }
