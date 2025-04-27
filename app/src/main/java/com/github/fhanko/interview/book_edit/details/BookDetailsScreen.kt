@@ -6,8 +6,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -28,7 +32,11 @@ fun BookDetailsScreen(viewModel: BookDetailsViewModel, navigation: NavController
 
     val state by viewModel.state.collectAsState()
     Scaffold(
-        topBar = { TopAppBar(title = { Text(text = "Book Details") }) }
+        topBar = { TopAppBar(title = { Text(text = "Book Details")},
+            navigationIcon = { IconButton(onClick = { navigation.popBackStack() }) {
+                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, "Back")
+            } })
+        }
     ) { innerPadding ->
         when {
             state.isLoading ->
@@ -38,7 +46,9 @@ fun BookDetailsScreen(viewModel: BookDetailsViewModel, navigation: NavController
             else ->
                 BookEditColumn(state.book, viewModel, Modifier.padding(innerPadding)) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(top = 14.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 14.dp),
                         horizontalArrangement = Arrangement.Center) {
                         ToggleReadButton(readState = state.book.readState) {
                             viewModel.call(BookDetailsIntent.ToggleReadState)
