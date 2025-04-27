@@ -1,5 +1,6 @@
 package com.github.fhanko.interview.book_edit.add
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -35,9 +36,14 @@ fun BookAddScreen(viewModel: BookAddViewModel, navigation: NavController) {
     Scaffold(
         topBar = { TopAppBar(title = { Text(text = "Add Book") }) }
     ) { innerPadding ->
+        val valid = state.book.title != "" && state.book.author != ""
         BookEditColumn(state.book, viewModel, Modifier.padding(innerPadding)) {
-            SaveBookButton(state.book.title != "" && state.book.author != "")
-                { showDialog = true }
+            SaveBookButton(enabled = valid)
+            { showDialog = true }
+            Row(horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
+                if (!valid) Text("Please enter the required fields.")
+            }
         }
     }
 }
@@ -57,13 +63,11 @@ fun ConfirmDialog(show: Boolean, confirmAction: () -> Unit) {
 
 @Composable
 fun SaveBookButton(enabled: Boolean, onClick: () -> Unit) {
-    Row {
-        Button(modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp), shape = RectangleShape,
-            enabled = enabled,
-            onClick = onClick) {
-            Text(text = "Continue", style = MaterialTheme.typography.bodyLarge)
-        }
+    Button(modifier = Modifier
+        .fillMaxWidth()
+        .height(48.dp), shape = RectangleShape,
+        enabled = enabled,
+        onClick = onClick) {
+        Text(text = "Continue", style = MaterialTheme.typography.bodyLarge)
     }
 }

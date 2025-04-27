@@ -47,7 +47,7 @@ open class BookEditViewModel : ViewModel() {
         if (state.value.book.id != null) updateBook()
     }
 
-    private suspend fun updateBook() {
+    protected suspend fun updateBook() {
         withContext (Dispatchers.IO) {
             AppDatabase.instance.bookDao().update(state.value.book)
         }

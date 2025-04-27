@@ -2,6 +2,7 @@ package com.github.fhanko.interview.book_edit.details
 
 import androidx.lifecycle.viewModelScope
 import com.github.fhanko.interview.AppDatabase
+import com.github.fhanko.interview.ReadState
 import com.github.fhanko.interview.book_edit.BookEditViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
@@ -10,6 +11,7 @@ import kotlinx.coroutines.withContext
 
 sealed class BookDetailsIntent {
     data object BookInit: BookDetailsIntent()
+    data object ToggleReadState: BookDetailsIntent()
 }
 
 class BookDetailsViewModel(private val bookId: Int): BookEditViewModel() {
@@ -17,6 +19,7 @@ class BookDetailsViewModel(private val bookId: Int): BookEditViewModel() {
         viewModelScope.launch {
             when (intent) {
                 BookDetailsIntent.BookInit -> initBook()
+                BookDetailsIntent.ToggleReadState -> toggleReadState()
             }
         }
     }
@@ -27,5 +30,14 @@ class BookDetailsViewModel(private val bookId: Int): BookEditViewModel() {
                 AppDatabase.instance.bookDao().getById(bookId)
             }, isLoading = false)
         }
+    }
+
+    private suspend fun toggleReadState() {
+        _state.update {
+            it.copy(book = it.book.copy(
+                readState = ReadState.entries[(it.book.readState.ordinal + 1) % ReadState.entries.size]
+            ))
+        }
+        updateBook()
     }
 }
